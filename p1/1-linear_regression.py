@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import Ridge, Lasso
 
-# Using seaborn as deafult style for matplotlib
+# Using seaborn as default style for matplotlib
 import seaborn
 seaborn.set()
 
