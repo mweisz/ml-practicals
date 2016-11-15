@@ -20,13 +20,32 @@ def compute_mean_squared_error(Y, Y_pred):
     return (1.0 / len(Y)) * np.dot(Y - Y_pred, Y - Y_pred)
 
 
+def normalise(X, mean=None, std=None):
+    if (mean is None) or (std is None):
+        mean = np.mean(X, axis=0)
+        std = np.std(X, axis=0)
+
+    X_norm = (mean - X) / std
+    return X_norm, mean, std
+
+
 def perform_regression(clf, degree, X_train, Y_train, X_test, Y_test):
-    poly = PolynomialFeatures(degree)
+    poly = PolynomialFeatures(degree, include_bias=False)
     X_train_expanded = poly.fit_transform(X_train)
     X_test_expanded = poly.fit_transform(X_test)
 
-    clf.fit(X_train_expanded, Y_train)
-    y_pred = clf.predict(X_test_expanded)
+    # Normalise expanded data
+    X_train_expanded_norm, train_mean, train_std = normalise(X_train_expanded)
+    X_test_expanded_norm, __, __ = normalise(X_test_expanded, mean=train_mean, std=train_std)
+
+    # Add Ones Column for bias term
+    N_train, __ = X_train.shape
+    N_test, __ = X_test.shape
+    X_train_expanded_norm = np.column_stack((np.ones(N_train), X_train_expanded_norm))
+    X_test_expanded_norm = np.column_stack((np.ones(N_test), X_test_expanded_norm))
+
+    clf.fit(X_train_expanded_norm, Y_train)
+    y_pred = clf.predict(X_test_expanded_norm)
     mse = compute_mean_squared_error(Y_test, y_pred)
 
     return mse
@@ -47,8 +66,8 @@ y_test = y[N_train:]
 MIN_RATING = 0
 MAX_RATING = 10
 y_range = range(MIN_RATING, MAX_RATING + 1)
-frequencies, bounds = np.histogram(y_train, bins=len(y_range),
-                                   range=(y_range[0], y_range[-1]))
+frequencies, __ = np.histogram(y_train, bins=len(y_range),
+                               range=(y_range[0], y_range[-1]))
 plt.bar(y_range, frequencies, align='center')
 plt.xticks(y_range, y_range)
 plt.xlabel('Quality Rating')
@@ -121,10 +140,11 @@ degrees = [2, 3, 4]
 N_val = int(0.2 * N_train)
 N_train_without_val = N_train - N_val
 
-X_train_without_val = X_train_norm_without_ones[:N_train_without_val]
+X_train_without_val = X_train[:N_train_without_val]
+# X_train_without_val = X_train_norm_without_ones[:N_train_without_val]
 y_train_without_val = y_train[:N_train_without_val]
 
-X_val = X_train_norm_without_ones[N_train_without_val:]
+X_val = X_train[N_train_without_val:]
 y_val = y_train[N_train_without_val:]
 
 
@@ -170,8 +190,8 @@ for d in degrees:
 #
 # Ridge
 ridge_mse = perform_regression(Ridge(alpha=best_lambda_ridge), best_degree_ridge,
-                               X_train_norm_without_ones, y_train,
-                               X_test_norm_without_ones, y_test)
+                               X_train, y_train,
+                               X_test, y_test)
 
 print "Using ridge regression with (lambda=%s, d=%s) as predictor:" \
     % (best_lambda_ridge, best_degree_ridge)
@@ -180,8 +200,8 @@ print "\tMean sq. error in test set: %s." % (ridge_mse)
 #
 # Lasso
 lasso_mse = perform_regression(Lasso(alpha=best_lambda_lasso), best_degree_lasso,
-                               X_train_norm_without_ones, y_train,
-                               X_test_norm_without_ones, y_test)
+                               X_train, y_train,
+                               X_test, y_test)
 
 print "Using lasso regression with (lambda=%s, d=%s) as predictor:" \
     % (best_lambda_lasso, best_degree_lasso)
