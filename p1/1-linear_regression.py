@@ -84,8 +84,8 @@ y_train_mse_naive = compute_mean_squared_error(y_train, y_train_mean)
 y_test_mse_naive = compute_mean_squared_error(y_test, y_train_mean)
 
 print "Using average quality rating in training set as predictor:"
-print "\tMean sq. error in training set: %s." % (y_train_mse_naive)
-print "\tMean sq. error in test set: %s." % (y_test_mse_naive)
+print "\tMean sq. error in training set: {0}.".format(y_train_mse_naive)
+print "\tMean sq. error in test set: {0}.".format(y_test_mse_naive)
 
 
 # Normalise the data
@@ -106,8 +106,8 @@ y_test_pred = np.dot(X_test_norm, w)
 y_test_mse_linear_model = compute_mean_squared_error(y_test, y_test_pred)
 
 print "Using linear regression as predictor:"
-print "\tMean sq. error in training set: %s." % (y_train_mse_linear_model)
-print "\tMean sq. error in test set: %s." % (y_test_mse_linear_model)
+print "\tMean sq. error in training set: {0}.".format(y_train_mse_linear_model)
+print "\tMean sq. error in test set: {0}.".format(y_test_mse_linear_model)
 
 
 # Compute learning curve
@@ -168,7 +168,7 @@ for d in degrees:
 
         # Keep track of best hyper params
         if ridge_mse <= min_error_ridge:
-            print "\tRidge (%s,%s) => %s (MSE)" % (l, d, ridge_mse)
+            print "\tRidge ({0},{1}) => {2} (MSE)".format(l, d, ridge_mse)
             min_error_ridge = ridge_mse
             best_lambda_ridge = l
             best_degree_ridge = d
@@ -180,7 +180,7 @@ for d in degrees:
 
         # Keep track of best hyper params
         if lasso_mse <= min_error_lasso:
-            print "\tLasso (%s,%s) => %s (MSE)" % (l, d, lasso_mse)
+            print "\tLasso ({0},{1}) => {2} (MSE)".format(l, d, lasso_mse)
             min_error_lasso = lasso_mse
             best_lambda_lasso = l
             best_degree_lasso = d
@@ -193,9 +193,9 @@ ridge_mse = perform_regression(Ridge(alpha=best_lambda_ridge), best_degree_ridge
                                X_train, y_train,
                                X_test, y_test)
 
-print "Using ridge regression with (lambda=%s, d=%s) as predictor:" \
-    % (best_lambda_ridge, best_degree_ridge)
-print "\tMean sq. error in test set: %s." % (ridge_mse)
+print "Using ridge regression with (lambda={0}, d={1}) as predictor:".format(best_lambda_ridge,
+                                                                             best_degree_ridge)
+print "\tMean sq. error in test set: {0}.".format(ridge_mse)
 
 #
 # Lasso
@@ -203,6 +203,6 @@ lasso_mse = perform_regression(Lasso(alpha=best_lambda_lasso), best_degree_lasso
                                X_train, y_train,
                                X_test, y_test)
 
-print "Using lasso regression with (lambda=%s, d=%s) as predictor:" \
-    % (best_lambda_lasso, best_degree_lasso)
-print "\tMean sq. error in test set: %s." % (lasso_mse)
+print "Using lasso regression with (lambda={0}, d={1}) as predictor:".format(best_lambda_lasso,
+                                                                             best_degree_lasso)
+print "\tMean sq. error in test set: {0}.".format(lasso_mse)
