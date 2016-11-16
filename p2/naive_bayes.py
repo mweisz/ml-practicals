@@ -12,6 +12,7 @@ class NBC:
 
     def fit(self, X, Y):
         self.classes = self.create_classes(X, Y)
+        print(self.classes)
         self.is_fit = True
 
     def predict(self, X):
@@ -32,21 +33,23 @@ class NBC:
 
     def compute_class_probability(self, c, x):
         """ Pr(Y=c|x) """
-
-        probabilites = []
+        class_probability = c['probability']
+        feature_probabilities = []
 
         D = x.size
         for i in range(D):
             if self.feature_types[i] == 'b':
                 bernoulli = c['means'][i] if x[i] == 1 else 1 - c['means'][i]
-                probabilites.append(bernoulli)
+                feature_probabilities.append(bernoulli)
             elif self.feature_types[i] == 'r':
                 gauss = norm.pdf(x[i], c['means'][i], c['stds'][i])
-                probabilites.append(gauss)
+                feature_probabilities.append(gauss)
 
-        return np.prod(probabilites)
+        return class_probability * np.prod(feature_probabilities)
 
     def create_classes(self, X, Y):
+        N, __ = X.shape
+
         class_labels = np.unique(Y)
         if len(class_labels) != self.num_classes:
             raise Exception('Number of classes does not match data.')
@@ -59,6 +62,10 @@ class NBC:
             means = np.mean(X[idx], axis=0)
             stds = np.std(X[idx], axis=0)
 
+            n_in_class, __ = X[idx].shape
+            probability = float(n_in_class) / N
+
             classes.append({'label': class_label,
-                           'means': means, 'stds': stds})
+                            'probability': probability,
+                            'means': means, 'stds': stds})
         return classes
