@@ -54,4 +54,3 @@ for i in range(10):
     accuracies = (1.0 / 10) * accuracies
 
 print(accuracies)
-
