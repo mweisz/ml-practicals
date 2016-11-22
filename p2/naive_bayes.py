@@ -48,8 +48,8 @@ class NBC:
         N, __ = X.shape
 
         class_labels = np.unique(Y)
-        if len(class_labels) != self.num_classes:
-            raise Exception('Number of classes does not match data.')
+        # if len(class_labels) != self.num_classes:
+        #     raise Exception('Number of classes does not match data.')
 
         classes = []
 
