@@ -25,7 +25,6 @@ yhat_nb = nbc.predict(X_test)
 nb_accuracy = np.mean(yhat_nb == y_test)
 
 
-
 # Logistic Regression
 lgc = LogisticRegression()
 lgc.fit(X_train, y_train)

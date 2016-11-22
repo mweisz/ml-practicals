@@ -12,7 +12,6 @@ class NBC:
 
     def fit(self, X, Y):
         self.classes = self.create_classes(X, Y)
-        # print(self.classes)
         self.is_fit = True
 
     def predict(self, X):
@@ -53,7 +52,7 @@ class NBC:
             raise Exception('Number of classes does not match data.')
 
         classes = []
-       
+
         for class_label in class_labels:
             idx = (Y == class_label)
 
