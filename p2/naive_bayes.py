@@ -12,26 +12,24 @@ class NBC:
 
     def fit(self, X, Y):
         self.classes = self.create_classes(X, Y)
-        print(self.classes)
+        # print(self.classes)
         self.is_fit = True
 
     def predict(self, X):
         if not self.is_fit:
             raise Exception('Need to fit model before making predictions.')
 
-        # TODO: For now we assume X is just one datapoint not a matrix.
-        max_probability = 0
-        predicted_class_label = self.classes[0]['label']
-        for c in self.classes:
-            p = self.compute_class_probability(c, X)
-            print "P(Y={0} | {1}) = {2}".format(c['label'], X, p)
-            if p > max_probability:
-                max_probability = p
-                predicted_class_label = c['label']
+        probs = np.apply_along_axis(self.compute_class_probabilites, 1, X)
+        max_class_idx = np.argmax(probs, axis=1)
+        return np.array([self.classes[i]['label'] for i in max_class_idx])
 
-        return predicted_class_label
+    def compute_class_probabilites(self, X):
+        class_probabilities = np.zeros(X.size)
+        for i, c in enumerate(self.classes):
+            class_probabilities[i] = self.p_of_class(c, X)
+        return class_probabilities
 
-    def compute_class_probability(self, c, x):
+    def p_of_class(self, c, x):
         """ Pr(Y=c|x) """
         class_probability = c['probability']
         feature_probabilities = []
@@ -55,7 +53,7 @@ class NBC:
             raise Exception('Number of classes does not match data.')
 
         classes = []
-
+       
         for class_label in class_labels:
             idx = (Y == class_label)
 
