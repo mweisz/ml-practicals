@@ -12,7 +12,6 @@ seaborn.set()
 
 X, y = cp.load(open('data/voting.cPickle', 'rb'))
 
-
 N, D = X.shape
 N_train = int(0.8 * N)
 shuffler = np.random.permutation(N)
@@ -20,6 +19,9 @@ X_train = X[shuffler[:N_train]]
 y_train = y[shuffler[:N_train]]
 X_test = X[shuffler[N_train:]]
 y_test = y[shuffler[N_train:]]
+
+LAMBDA = 0.1
+
 
 # Naive Bayes Classifier
 nbc = NBC(feature_types=['b']*16, num_classes=2)
@@ -41,12 +43,15 @@ print "\tLG Accuracy: {0}.".format(lg_accuracy)
 
 
 # Learning Curve
-MAX_TRAILS = 3
+MAX_TRAILS = 50
 CLASSIFIER_COUNT = 10
 accuracies_nb = np.zeros(CLASSIFIER_COUNT)
 accuracies_lg = np.zeros(CLASSIFIER_COUNT)
+accuracies_lg_reg = np.zeros(CLASSIFIER_COUNT)
 
-for k in range(1, CLASSIFIER_COUNT + 1):
+classifier_range = range(1, CLASSIFIER_COUNT + 1)
+
+for k in classifier_range:
     N_train_k = int(0.1 * k * N_train)
 
     for i in range(MAX_TRAILS):
@@ -70,15 +75,20 @@ for k in range(1, CLASSIFIER_COUNT + 1):
         yhat_lg = lgc.predict(Xtest)
         accuracies_lg[k - 1] += np.mean(yhat_lg == ytest)
 
+        lgc_reg = LogisticRegression(C=1/LAMBDA)
+        lgc_reg.fit(Xtrain[:N_train_k], ytrain[:N_train_k])
+        yhat_lg_reg = lgc_reg.predict(Xtest)
+        accuracies_lg_reg[k - 1] += np.mean(yhat_lg_reg == ytest)
+
 accuracies_nb = (1.0 / MAX_TRAILS) * accuracies_nb
 accuracies_lg = (1.0 / MAX_TRAILS) * accuracies_lg
+accuracies_lg_reg = (1.0 / MAX_TRAILS) * accuracies_lg_reg
 
-print(accuracies_nb)
-print(accuracies_lg)
 
 plt.title('US Voting: Learning Curve')
 plt.ylabel('Accuracy')
-plt.plot(range(1, CLASSIFIER_COUNT + 1), accuracies_nb, label="Naive Bayes")
-plt.plot(range(1, CLASSIFIER_COUNT + 1), accuracies_lg, label="Logistic Regression")
+plt.plot(classifier_range, accuracies_nb, label="Naive Bayes")
+plt.plot(classifier_range, accuracies_lg, label="Logistic Regression")
+plt.plot(classifier_range, accuracies_lg_reg, label="Logistic Regression (lambda = {})".format(LAMBDA))
 plt.legend(loc='lower right')
 plt.show()
