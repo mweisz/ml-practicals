@@ -43,7 +43,7 @@ print "\tNB Accuracy: {0}.".format(nb_accuracy)
 print "\tLG Accuracy: {0}.".format(lg_accuracy)
 
 # Learning Curve
-MAX_TRAILS = 200
+MAX_TRAILS = 10
 CLASSIFIER_COUNT = 10
 accuracies_nb = np.zeros(CLASSIFIER_COUNT)
 accuracies_lg = np.zeros(CLASSIFIER_COUNT)

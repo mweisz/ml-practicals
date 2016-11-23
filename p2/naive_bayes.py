@@ -30,19 +30,26 @@ class NBC:
 
     def p_of_class(self, c, x):
         """ Pr(Y=c|x) """
-        class_probability = c['probability']
-        feature_probabilities = []
-
         D = x.size
+
+        class_probability = c['probability']
+        feature_probabilities = np.ones(D)
+
         for i in range(D):
             if self.feature_types[i] == 'b':
                 bernoulli = c['means'][i] if x[i] == 1 else 1 - c['means'][i]
-                feature_probabilities.append(bernoulli)
+                feature_probabilities[i] = bernoulli
             elif self.feature_types[i] == 'r':
                 gauss = norm.pdf(x[i], c['means'][i], c['stds'][i])
-                feature_probabilities.append(gauss)
 
-        return class_probability * np.prod(feature_probabilities)
+                if gauss != 0:
+                    feature_probabilities[i] = gauss
+                else:
+                    # ignore feature if standard deviation is zero
+                    pass
+
+        feature_probabilities = np.log(feature_probabilities)
+        return np.exp(class_probability + np.sum(feature_probabilities))
 
     def create_classes(self, X, Y):
         N, __ = X.shape
@@ -60,7 +67,7 @@ class NBC:
             stds = np.std(X[idx], axis=0)
 
             n_in_class, __ = X[idx].shape
-            probability = float(n_in_class) / N
+            probability = np.log(float(n_in_class) / N)
 
             classes.append({'label': class_label,
                             'probability': probability,
